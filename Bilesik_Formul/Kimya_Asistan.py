@@ -907,7 +907,8 @@ st.markdown("""
         box-shadow: 0 0 15px #00ffcc;
     }
     </style>
-    """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True
+)
 
 # Başlık
 st.title("🧪 Kimya Asistan v1.5.0")
