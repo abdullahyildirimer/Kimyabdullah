@@ -866,7 +866,7 @@ st.set_page_config(page_title="Kimya Asistan v1.5.0", page_icon="🧪")
 # Başlık
 st.title("🧪 Kimya Asistan v1.5.0")
 
-# İmza (Sağ tarafa veya alt satıra şık bir yazı)
+# İmza (Link eklenmiş yeni hali)
 st.caption("by kimyabdullah | [İletişim](https://github.com/abdullahyildirimer)")
 
 st.write("Formül veya isim yazarak sorgulayın.")
@@ -879,7 +879,7 @@ tum_isimler = [b["simgesi"] for b in bilesikler] + [b["adi"] for b in bilesikler
 giris = st.selectbox(
     "Formül veya İsim Seçin/Yazın:",
     options=[""] + sorted(list(set(tum_isimler))),
-    format_func=lambda x: "Seçiniz..." if x == "" else x
+    format_func=lambda x: " " if x == "" else x
 )
 
 # Sorgulama Butonu
