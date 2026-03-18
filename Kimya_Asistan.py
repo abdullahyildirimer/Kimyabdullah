@@ -863,8 +863,12 @@ def alt_simge_yap(metin):
 # --- 3. STREAMLIT ARAYÜZÜ ---
 st.set_page_config(page_title="Kimya Asistan v1.5.0", page_icon="🧪")
 
-# Mobil uyumlu başlık
+# Başlık
 st.title("🧪 Kimya Asistan v1.5.0")
+
+# İmza (Sağ tarafa veya alt satıra şık bir yazı)
+st.caption("by kimyabdullah")
+
 st.write("Formül veya isim yazarak sorgulayın.")
 
 # Öneri Listesi Hazırlığı (Tkinter'deki tum_isimler kısmı)
