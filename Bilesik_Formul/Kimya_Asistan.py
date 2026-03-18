@@ -1,4 +1,5 @@
 import streamlit as st
+import difflib
 
 bilesikler = [
     {'simgesi': 'H', 'mol agir': 1.0, 'adi': 'HİDROJEN'},
@@ -847,6 +848,16 @@ bilesikler = [
     {'simgesi': 'Al2O3.2SiO2.2H2O', 'mol agir': 258.0, 'adi': 'KİL/KAOLİN'}
 ]
 
+import difflib
+
+# Bileşik listendeki isimleri ve formülleri bir havuzda toplayalım
+tum_secenekler = list(bilesikler.keys())
+
+def en_yakin_sonucu_bul(aranan_metin):
+    # %60 ve üzeri benzerlik gösteren en iyi 3 sonucu bulur
+    benzerler = difflib.get_close_matches(aranan_metin, tum_secenekler, n=3, cutoff=0.6)
+    return benzerler
+
 # --- 2. YARDIMCI FONKSİYONLAR (Aynen Koruyoruz) ---
 def tr_lower(metin):
     if not metin: return ""
@@ -862,6 +873,44 @@ def alt_simge_yap(metin):
 
 # --- 3. STREAMLIT ARAYÜZÜ ---
 st.set_page_config(page_title="Kimya Asistan v1.5.0", page_icon="🧪")
+
+st.markdown("""
+    <style>
+    /* Ana Arka Plan */
+    .stApp {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), 
+                    url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        background-color: #0e1117;
+    }
+
+    /* Başlık ve Metin Renkleri */
+    h1, h2, h3, p, span {
+        color: #00d4ff !important;
+        font-family: 'Courier New', Courier, monospace;
+    }
+
+    /* Giriş Kutusu ve Buton Şıklığı */
+    .stTextInput>div>div>input {
+        background-color: #1a1c24;
+        color: #00ffcc;
+        border: 1px solid #00d4ff;
+    }
+
+    .stButton>button {
+        background-color: #00d4ff;
+        color: black;
+        font-weight: bold;
+        border-radius: 20px;
+        border: none;
+        transition: 0.3s;
+    }
+
+    .stButton>button:hover {
+        background-color: #00ffcc;
+        box-shadow: 0 0 15px #00ffcc;
+    }
+    </style>
+    """, unsafe_allow_stdio=True)
 
 # Başlık
 st.title("🧪 Kimya Asistan v1.5.0")
@@ -885,10 +934,11 @@ giris = st.selectbox(
 # Sorgulama Butonu
 if st.button("SORGULA", use_container_width=True):
     if giris != "":
-        aranan = tr_lower(giris)
+        # Girişi temizle ve küçük harfe çevir
+        aranan = tr_lower(giris).strip()
         sonuc = None
 
-        # Senin yazdığın o manuel arama döngüsü:
+        # 1. Aşama: Tam eşleşme araması
         for b in bilesikler:
             temiz_simge = tr_lower(b['simgesi']).replace('\xa0', '').strip()
             temiz_ad = tr_lower(b['adi']).replace('\xa0', '').strip()
@@ -897,10 +947,33 @@ if st.button("SORGULA", use_container_width=True):
                 sonuc = b
                 break
 
+        # 2. Aşama: Karar verme ve Görselleştirme
         if sonuc:
-            # Görsel sonuçları kartlar içinde gösteriyoruz
-            st.markdown(f"<h1 style='text-align: center; color: #283593;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
+            # Başlık (Yeni neon mavi rengiyle)
+            st.markdown(f"<h1 style='text-align: center; color: #00d4ff;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
                         unsafe_allow_html=True)
+
+            # Kart yapısı (Eğer kart kodların varsa buraya ekleyebilirsin, işte bir örnek:)
+            #st.success(f"**Bileşik Adı:** {sonuc['adi']}")
+            #if 'ozellikler' in sonuc:
+            #    st.info(f"**Özellik:** {sonuc['ozellikler']}")
+
+        else:
+            # 3. Aşama: Akıllı Öneri (Bulunamadığında devreye girer)
+            st.error("Üzgünüm, bu bileşik veritabanımızda bulunamadı.")
+
+            # Öneri havuzu oluştur (Tüm adlar ve simgeler)
+            havuz = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
+
+            # En yakın 3 eşleşmeyi bul (%50 benzerlik eşiğiyle)
+            oneriler = difflib.get_close_matches(aranan, havuz, n=3, cutoff=0.5)
+
+            if oneriler:
+                # Önerileri alt simge formatına çevirerek şık bir şekilde sun
+                oneriler_formatli = [f"`{alt_simge_yap(o)}`" for o in oneriler]
+                st.markdown(f"🔍 **Bunu mu demek istediniz?** {' , '.join(oneriler_formatli)}")
+            else:
+                st.warning("Aradığınız terime benzer bir sonuç da bulamadık. Lütfen yazımı kontrol edin.")
 
             col1, col2 = st.columns(2)
             with col1:
