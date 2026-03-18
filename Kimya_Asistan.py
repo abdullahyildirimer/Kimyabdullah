@@ -867,7 +867,7 @@ st.set_page_config(page_title="Kimya Asistan v1.5.0", page_icon="🧪")
 st.title("🧪 Kimya Asistan v1.5.0")
 
 # İmza (Sağ tarafa veya alt satıra şık bir yazı)
-st.caption("by kimyabdullah")
+st.caption("by kimyabdullah | [İletişim](https://github.com/abdullahyildirimer)")
 
 st.write("Formül veya isim yazarak sorgulayın.")
 
@@ -911,3 +911,6 @@ if st.button("SORGULA", use_container_width=True):
             st.error("Bileşik bulunamadı.")
     else:
         st.warning("Lütfen bir giriş yapın.")
+
+st.markdown("---")
+st.markdown("<p style='text-align: right; color: gray;'>by kimyabdullah</p>", unsafe_allow_html=True)
