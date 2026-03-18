@@ -925,8 +925,7 @@ tum_isimler = [b["simgesi"] for b in bilesikler] + [b["adi"] for b in bilesikler
 giris = st.selectbox(
     "Formül veya İsim Seçin/Yazın:",
     options=[""] + sorted(list(set(tum_isimler))),
-    format_func=lambda x: " " if x == "" else x
-)
+    format_func=lambda x: " " if x == "" else x )
 
 # Sorgulama Butonu
 if st.button("SORGULA", use_container_width=True):
@@ -935,7 +934,7 @@ if st.button("SORGULA", use_container_width=True):
         aranan = tr_lower(giris).strip()
         sonuc = None
 
-        # 1. Aşama: Tam eşleşme araması
+        # 1. Aşama: Tam eşleşme araması (Döngü)
         for b in bilesikler:
             temiz_simge = tr_lower(b['simgesi']).replace('\xa0', '').strip()
             temiz_ad = tr_lower(b['adi']).replace('\xa0', '').strip()
@@ -944,38 +943,32 @@ if st.button("SORGULA", use_container_width=True):
                 sonuc = b
                 break
 
-                # 2. Aşama: Karar verme ve Görselleştirme
-            if sonuc:
-                # Başlık (Neon mavi rengiyle)
-                st.markdown(
-                    f"<h1 style='text-align: center; color: #00d4ff;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
-                    unsafe_allow_html=True)
+        # 2. Aşama: Karar verme ve Görselleştirme (Döngünün DIŞINDA olmalı!)
+        if sonuc:
+            # Başlık (Neon mavi rengiyle)
+            st.markdown(
+                f"<h1 style='text-align: center; color: #00d4ff;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
+                unsafe_allow_html=True)
 
-                # Sonuç Kartları
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.info(f"**BİLEŞİK ADI:**\n\n{sonuc['adi']}")
-                with col2:
-                    st.success(f"**MOLEKÜL AĞIRLIĞI:**\n\n{sonuc['mol agir']} g/mol")
+            # Sonuç Kartları
+            col1, col2 = st.columns(2)
+            with col1:
+                st.info(f"**BİLEŞİK ADI:**\n\n{sonuc['adi']}")
 
-            else:
-                # 3. Aşama: Akıllı Öneri (Bulunamadığında devreye girer)
-                st.error("Üzgünüm, bu bileşik veritabanımızda bulunamadı.")
+            with col2:
+                st.success(f"**MOLEKÜL AĞIRLIĞI:**\n\n{sonuc['mol agir']} g/mol")
 
-                # Öneri havuzu oluştur (Tüm adlar ve simgeler)
-                havuz = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
-
-                # En yakın 3 eşleşmeyi bul
-                oneriler = difflib.get_close_matches(aranan, havuz, n=3, cutoff=0.5)
-
-                if oneriler:
-                    # Önerileri şık bir şekilde sun
-                    oneriler_formatli = [f"`{alt_simge_yap(o)}`" for o in oneriler]
-                    st.markdown(f"🔍 **Bunu mu demek istediniz?** {' , '.join(oneriler_formatli)}")
-                else:
-                    st.warning("Aradığınız terime benzer bir sonuç da bulamadık. Lütfen yazımı kontrol edin.")
         else:
-            st.warning("Lütfen bir giriş yapın.")
+            # 3. Aşama: Akıllı Öneri (Bulunamadığında)
+            st.error("Bileşik bulunamadı.")
+            havuz = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
+            oneriler = difflib.get_close_matches(aranan, havuz, n=3, cutoff=0.5)
+
+            if oneriler:
+                oneriler_formatli = [f"`{alt_simge_yap(o)}`" for o in oneriler]
+                st.info(f"🔍 Bunu mu demek istediniz? {' , '.join(oneriler_formatli)}")
+    else:
+        st.warning("Lütfen bir giriş yapın.")
 
 # Kodunun en sonuna (en dışa) ekle
 st.markdown("---")
