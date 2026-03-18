@@ -847,11 +847,8 @@ bilesikler = [
     {'simgesi': 'CaAl2O4', 'mol agir': 158.0, 'adi': 'KALSİYUM ALÜMİNAT'},
     {'simgesi': 'Al2O3.2SiO2.2H2O', 'mol agir': 258.0, 'adi': 'KİL/KAOLİN'}
 ]
-
-import difflib
-
-# Bileşik listendeki isimleri ve formülleri bir havuzda toplayalım
-tum_secenekler = list(bilesikler.keys())
+# Her bir bileşiğin adını ve simgesini tek tek çekip listeye ekliyoruz
+tum_secenekler = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
 
 def en_yakin_sonucu_bul(aranan_metin):
     # %60 ve üzeri benzerlik gösteren en iyi 3 sonucu bulur
@@ -947,43 +944,39 @@ if st.button("SORGULA", use_container_width=True):
                 sonuc = b
                 break
 
-        # 2. Aşama: Karar verme ve Görselleştirme
-        if sonuc:
-            # Başlık (Yeni neon mavi rengiyle)
-            st.markdown(f"<h1 style='text-align: center; color: #00d4ff;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
-                        unsafe_allow_html=True)
+                # 2. Aşama: Karar verme ve Görselleştirme
+            if sonuc:
+                # Başlık (Neon mavi rengiyle)
+                st.markdown(
+                    f"<h1 style='text-align: center; color: #00d4ff;'>{alt_simge_yap(sonuc['simgesi'])}</h1>",
+                    unsafe_allow_html=True)
 
-            # Kart yapısı (Eğer kart kodların varsa buraya ekleyebilirsin, işte bir örnek:)
-            #st.success(f"**Bileşik Adı:** {sonuc['adi']}")
-            #if 'ozellikler' in sonuc:
-            #    st.info(f"**Özellik:** {sonuc['ozellikler']}")
+                # Sonuç Kartları
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.info(f"**BİLEŞİK ADI:**\n\n{sonuc['adi']}")
+                with col2:
+                    st.success(f"**MOLEKÜL AĞIRLIĞI:**\n\n{sonuc['mol agir']} g/mol")
 
-        else:
-            # 3. Aşama: Akıllı Öneri (Bulunamadığında devreye girer)
-            st.error("Üzgünüm, bu bileşik veritabanımızda bulunamadı.")
-
-            # Öneri havuzu oluştur (Tüm adlar ve simgeler)
-            havuz = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
-
-            # En yakın 3 eşleşmeyi bul (%50 benzerlik eşiğiyle)
-            oneriler = difflib.get_close_matches(aranan, havuz, n=3, cutoff=0.5)
-
-            if oneriler:
-                # Önerileri alt simge formatına çevirerek şık bir şekilde sun
-                oneriler_formatli = [f"`{alt_simge_yap(o)}`" for o in oneriler]
-                st.markdown(f"🔍 **Bunu mu demek istediniz?** {' , '.join(oneriler_formatli)}")
             else:
-                st.warning("Aradığınız terime benzer bir sonuç da bulamadık. Lütfen yazımı kontrol edin.")
+                # 3. Aşama: Akıllı Öneri (Bulunamadığında devreye girer)
+                st.error("Üzgünüm, bu bileşik veritabanımızda bulunamadı.")
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.info(f"**BİLEŞİK ADI:**\n\n{sonuc['adi']}")
-            with col2:
-                st.success(f"**MOLEKÜL/FORMÜL AĞIRLIĞI:**\n\n{sonuc['mol agir']} g/mol")
+                # Öneri havuzu oluştur (Tüm adlar ve simgeler)
+                havuz = [b['adi'] for b in bilesikler] + [b['simgesi'] for b in bilesikler]
+
+                # En yakın 3 eşleşmeyi bul
+                oneriler = difflib.get_close_matches(aranan, havuz, n=3, cutoff=0.5)
+
+                if oneriler:
+                    # Önerileri şık bir şekilde sun
+                    oneriler_formatli = [f"`{alt_simge_yap(o)}`" for o in oneriler]
+                    st.markdown(f"🔍 **Bunu mu demek istediniz?** {' , '.join(oneriler_formatli)}")
+                else:
+                    st.warning("Aradığınız terime benzer bir sonuç da bulamadık. Lütfen yazımı kontrol edin.")
         else:
-            st.error("Bileşik bulunamadı.")
-    else:
-        st.warning("Lütfen bir giriş yapın.")
-# Kodunun en sonuna ekle
+            st.warning("Lütfen bir giriş yapın.")
+
+# Kodunun en sonuna (en dışa) ekle
 st.markdown("---")
-st.markdown("<p style='text-align: right; color: gray;'>by kimyabdullah</p>", unsafe_allow_html=True)
+st.caption("by kimyabdullah | [İletişim](https://github.com/abdullahyildirimer)")
